@@ -6,9 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build --base=/vanilla-app-template/",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "electron ./src/main.js",
+    "dist": "electron-builder"
   },
   "devDependencies": {
+    "electron": "^34.2.0",
+    "electron-builder": "^25.1.8",
     "glob": "^11.0.0",
     "postcss": "^8.4.41",
     "postcss-sort-media-queries": "^5.2.0",
@@ -19,5 +23,16 @@
   "dependencies": {
     "vite-plugin-full-reload": "^1.2.0",
     "vite-plugin-html-inject": "^1.1.2"
+  },
+  "main": "src/main.js",
+  "build": {
+    "appId": "com.myapp.app",
+    "productName": "Vanilla App Template",
+    "win": {
+      "target": "nsis"
+    },
+    "directories": {
+      "output": "dist"
+    }
   }
 }

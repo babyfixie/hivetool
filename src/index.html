@@ -2,22 +2,115 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vanilla App Template</title>
-    <link rel="stylesheet" href="./css/styles.css" />
+    <title>Hive Tool | BABYFIXIE</title>
+    <!-- Подключаем Bootstrap без атрибута integrity -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Используем флекс-контейнеры для разделения */
+      .flex-container {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+
+        min-height: 100vh;
+      }
+    </style>
   </head>
   <body>
-    <load src="./partials/header.html" icon-path="img/sprite.svg#logo" />
+    <div class="flex-container">
+      <!-- Хедер -->
+      <header class="header">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" href="#">Hive Tool</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item active">
+                <a class="nav-link" href="index.html">Stat Tracker</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="winrate.html">Winrate Calculator</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
 
-    <main>
-      <!-- Loads the specified .html file -->
-      <load src="./partials/vite-promo.html" />
-      <load src="./partials/badges.html" />
-    </main>
+      <!-- Основная часть -->
+      <main class="main-content container mt-5">
+        <h1 class="text-center mb-4">Whose stats do you want to see?</h1>
+        <div class="d-flex justify-content-center">
+          <div class="form-group mr-3">
+            <label for="nickname">Enter Nickname:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="nickname"
+              placeholder="Enter nickname"
+              value="babyfixie"
+            />
+          </div>
+          <div class="form-group">
+            <label for="gameMode">Select Game Mode:</label>
+            <select class="form-control" id="gameMode">
+              <option value="bed">Bed</option>
+              <option value="sky">Sky</option>
+              <option value="wars">Wars</option>
+              <option value="murder">Murder</option>
+              <option value="dr">DR</option>
+              <option value="party">Party</option>
+              <option value="ground">Ground</option>
+            </select>
+          </div>
+        </div>
+        <div class="text-center mt-4">
+          <button id="searchBtn" class="btn btn-primary btn-lg">Search</button>
+        </div>
+      </main>
 
-    <load src="./partials/footer.html" />
+      <!-- Футер -->
+      <footer class="footer text-center bg-light py-3">
+        <p class="mb-0">
+          © HiveTool 2025 - Made with
+          <span style="color: red">&hearts;</span> by Fixie
+        </p>
+      </footer>
+    </div>
 
-    <script type="module" src="./main.js"></script>
+    <script>
+      document.getElementById('searchBtn').addEventListener('click', event => {
+        event.preventDefault();
+        const nickname = document.getElementById('nickname').value.trim();
+        const gameMode = document.getElementById('gameMode').value;
+
+        if (!nickname || !gameMode) {
+          alert('Please enter a correct nickname and select a game mode.');
+          return; // Выход, если нет данных
+        }
+
+        const statsUrl = `stats.html?gameMode=${gameMode}&nickname=${nickname}`;
+        console.log('Redirecting to:', statsUrl); // Для отладки
+        window.location.href = statsUrl;
+      });
+    </script>
+
+    <!-- Подключаем Bootstrap JS и зависимости без атрибута integrity -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   </body>
 </html>

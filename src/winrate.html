@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player Stats</title>
+    <!-- Подключаем Bootstrap -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <style>
+      .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center my-3">Player Stats</h1>
+      <div class="text-center mb-3">
+        <a href="index.html" class="btn btn-primary">Back to Home</a>
+      </div>
+
+      <!-- Форма для ввода данных -->
+      <div class="text-center my-3">
+        <input
+          type="text"
+          id="nicknameInput"
+          class="form-control w-50 mx-auto mb-2"
+          placeholder="Enter Nickname"
+        />
+        <input
+          type="number"
+          id="desiredWinrateInput"
+          class="form-control w-50 mx-auto mb-2"
+          placeholder="Enter Desired Winrate (%)"
+          min="0"
+          max="100"
+        />
+        <button id="fetchStatsBtn" class="btn btn-primary">Fetch Stats</button>
+      </div>
+
+      <div id="stats" class="row mt-3"></div>
+    </div>
+
+    <script>
+      document
+        .getElementById('fetchStatsBtn')
+        .addEventListener('click', function () {
+          const nickname = document
+            .getElementById('nicknameInput')
+            .value.trim();
+          const desiredWinrate = parseFloat(
+            document.getElementById('desiredWinrateInput').value.trim()
+          );
+
+          if (
+            !nickname ||
+            isNaN(desiredWinrate) ||
+            desiredWinrate < 0 ||
+            desiredWinrate > 100
+          ) {
+            alert(
+              'Please enter both nickname and a valid desired winrate between 0 and 100.'
+            );
+            return;
+          }
+
+          const gameMode = 'bed'; // Можно добавить выбор игрового режима
+          const apiUrl = `https://api.playhive.com/v0/game/all/${gameMode}/${nickname}`;
+
+          fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+              if (data && data.played) {
+                const wins = data.victories;
+                const played = data.played;
+
+                // Вычисляем необходимое количество побед для достижения желаемого винрейта
+                const requiredWins = Math.ceil((desiredWinrate / 100) * played);
+                const gamesRemaining = Math.max(0, requiredWins - wins);
+
+                // Отображаем статистику
+                displayStats(data, desiredWinrate, gamesRemaining);
+              } else {
+                document.getElementById('stats').innerHTML =
+                  '<p class="text-center text-warning">Player has no stats or has not played the game.</p>';
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching data:', error);
+              document.getElementById('stats').innerHTML =
+                '<p class="text-center text-danger">Error fetching data.</p>';
+            });
+        });
+
+      function displayStats(data, desiredWinrate, gamesRemaining) {
+        const statsContainer = document.getElementById('stats');
+
+        // Сначала очищаем контейнер
+        statsContainer.innerHTML = '';
+
+        // Добавляем карточки с основными данными
+        const stats = [
+          { label: 'Games Played', value: data.played },
+          { label: 'Wins', value: data.victories },
+          { label: 'Losses', value: data.played - data.victories },
+          {
+            label: 'Current Winrate',
+            value: `${((data.victories / data.played) * 100).toFixed(2)}%`,
+          },
+        ];
+
+        stats.forEach(stat => {
+          const statElement = document.createElement('div');
+          statElement.classList.add('col-md-4', 'my-2');
+          statElement.innerHTML = `
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">${stat.label}</h5>
+                <p class="card-text">${stat.value}</p>
+              </div>
+            </div>
+          `;
+          statsContainer.appendChild(statElement);
+        });
+
+        // Добавляем информацию о недостающих играх
+        const gamesRemainingElement = document.createElement('div');
+        gamesRemainingElement.classList.add('col-md-4', 'my-2');
+        gamesRemainingElement.innerHTML = `
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Games Left for Desired Winrate</h5>
+              <p class="card-text">${
+                gamesRemaining > 0 ? gamesRemaining : 'Target winrate reached'
+              }</p>
+            </div>
+          </div>
+        `;
+        statsContainer.appendChild(gamesRemainingElement);
+      }
+    </script>
+
+    <!-- Подключаем Bootstrap JS и зависимые библиотеки (Popper.js и jQuery) -->
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

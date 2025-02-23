@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player Stats</title>
+    <!-- Подключаем Bootstrap -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <style>
+      /* Эффект наведения на карточку */
+      .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-2px); /* Поднимаем карточку вверх */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Добавляем тень */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center my-3">Player Stats</h1>
+      <div class="text-center mb-3">
+        <a href="index.html" class="btn btn-primary">Back to Home</a>
+      </div>
+
+      <div id="stats" class="row"></div>
+    </div>
+
+    <script>
+      // Получаем параметры из URL (игровой режим и никнейм)
+      const urlParams = new URLSearchParams(window.location.search);
+      const gameMode = urlParams.get('gameMode');
+      const nickname = urlParams.get('nickname');
+
+      // Формируем URL для получения данных с API
+      const apiUrl = `https://api.playhive.com/v0/game/all/${gameMode}/${nickname}`;
+
+      // Пресеты для разных режимов
+      const presets = {
+        bed: [
+          { label: 'XP', field: 'xp' },
+          { label: 'Games Played', field: 'played' },
+          { label: 'Wins', field: 'victories' },
+          { label: 'Kills', field: 'kills' },
+          { label: 'Deaths', field: 'deaths' },
+          { label: 'Final Kills', field: 'final_kills' },
+          { label: 'Beds Destroyed', field: 'beds_destroyed' },
+        ],
+        sky: [
+          { label: 'XP', field: 'xp' },
+          { label: 'Games Played', field: 'played' },
+          { label: 'Wins', field: 'victories' },
+          { label: 'Kills', field: 'kills' },
+          { label: 'Deaths', field: 'deaths' },
+        ],
+        dr: [
+          { label: 'XP', field: 'xp' },
+          { label: 'Games Played', field: 'played' },
+          { label: 'Wins', field: 'victories' },
+          { label: 'Kills', field: 'kills' },
+          { label: 'Deaths', field: 'deaths' },
+          { label: 'Checkpoints', field: 'checkpoints' },
+          { label: 'Activated Traps', field: 'activated' },
+        ],
+        wars: [
+          { label: 'XP', field: 'xp' },
+          { label: 'Games Played', field: 'played' },
+          { label: 'Wins', field: 'victories' },
+          { label: 'Kills', field: 'kills' },
+          { label: 'Deaths', field: 'deaths' },
+          { label: 'Final Kills', field: 'final_kills' },
+          { label: 'Treasures Destroyed', field: 'treasure_destroyed' },
+        ],
+        murder: [
+          { label: 'XP', field: 'xp' },
+          { label: 'Games Played', field: 'played' },
+          { label: 'Wins', field: 'victories' },
+          { label: 'Kills', field: 'kills' },
+          { label: 'Deaths', field: 'deaths' },
+          { label: 'Coins', field: 'coins' },
+          { label: 'Murders', field: 'murders' },
+          { label: 'Murderer Eliminations', field: 'murderer_eliminations' },
+        ],
+        party: [
+          { label: 'XP', field: 'xp' },
+          { label: 'Games Played', field: 'played' },
+          { label: 'Wins', field: 'victories' },
+          { label: 'Powerups Collected', field: 'powerups_collected' },
+          { label: 'Rounds Survived', field: 'rounds_survived' },
+        ],
+        ground: [
+          { label: 'XP', field: 'xp' },
+          { label: 'Games Played', field: 'played' },
+          { label: 'First Played', field: 'first_played' },
+          { label: 'Blocks Destroyed', field: 'blocks_destroyed' },
+          { label: 'Blocks Placed', field: 'blocks_placed' },
+          { label: 'Deaths', field: 'deaths' },
+          { label: 'Kills', field: 'kills' },
+          { label: 'Projectiles Fired', field: 'projectiles_fired' },
+        ],
+      };
+
+      // Функция для отображения статистики
+      function displayStats(data) {
+        const statsContainer = document.getElementById('stats');
+
+        // Получаем данные для расчета
+        const wins = data.victories;
+        const played = data.played;
+        const kills = data.kills;
+        const deaths = data.deaths;
+
+        // Вычисление losses
+        const losses = played - wins;
+
+        // Вычисления для losses_wlr и kdr
+        // Losses WLR = Wins / Losses, если Losses > 0
+        const lossesWlr = losses > 0 ? 100 * (wins / played).toFixed(5) : 'N/A';
+        // KDR = Kills / Deaths, если Deaths > 0
+        const kdr = deaths > 0 ? (kills / deaths).toFixed(5) : 'N/A';
+
+        // Для каждого пресета в зависимости от игрового режима
+        presets[gameMode].forEach(preset => {
+          const fieldValue = data[preset.field];
+          const statElement = document.createElement('div');
+          statElement.classList.add('col-md-4', 'my-2');
+          statElement.innerHTML = `
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">${preset.label}</h5>
+            <p class="card-text">${fieldValue}</p>
+          </div>
+        </div>
+      `;
+          statsContainer.appendChild(statElement);
+        });
+
+        // Добавление losses в статистику
+        const statElementLosses = document.createElement('div');
+        statElementLosses.classList.add('col-md-4', 'my-2');
+        statElementLosses.innerHTML = `
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Losses</h5>
+          <p class="card-text">${losses}</p>
+        </div>
+      </div>
+    `;
+        statsContainer.appendChild(statElementLosses);
+
+        // Добавление расчетных значений в статистику
+        const statElementWlr = document.createElement('div');
+        statElementWlr.classList.add('col-md-4', 'my-2');
+        statElementWlr.innerHTML = `
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">WLR</h5>
+          <p class="card-text">${lossesWlr}</p>
+        </div>
+      </div>
+    `;
+        statsContainer.appendChild(statElementWlr);
+
+        const statElementKdr = document.createElement('div');
+        statElementKdr.classList.add('col-md-4', 'my-2');
+        statElementKdr.innerHTML = `
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">KDR</h5>
+          <p class="card-text">${kdr}</p>
+        </div>
+      </div>
+    `;
+        statsContainer.appendChild(statElementKdr);
+      }
+
+      // Получаем данные с API
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data); // Добавляем вывод данных в консоль для проверки
+
+          // Проверяем наличие данных для XP
+          if (!data.xp) {
+            document.getElementById('stats').innerHTML =
+              '<p class="text-center text-warning">Player hasn\'t played the game yet.</p>';
+          } else if (data) {
+            displayStats(data);
+          } else {
+            document.getElementById('stats').innerHTML =
+              '<p class="text-center text-danger">No data available for this player.</p>';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          document.getElementById('stats').innerHTML =
+            '<p class="text-center text-danger">Error fetching data.</p>';
+        });
+    </script>
+
+    <!-- Подключаем Bootstrap JS и зависимые библиотеки (Popper.js и jQuery) -->
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
