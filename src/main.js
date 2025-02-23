@@ -17,10 +17,8 @@ function createWindow() {
     },
   });
 
-  // Disable menu bar by default
-  win.setMenuBarVisibility(false); // This hides the menu bar
+  win.setMenuBarVisibility(false);
 
-  // Load the HTML page
   win.loadFile(path.join(__dirname, 'index.html'));
 }
 

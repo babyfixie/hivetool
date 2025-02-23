@@ -4,25 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hive Tool | BABYFIXIE</title>
-    <!-- Подключаем Bootstrap без атрибута integrity -->
     <link
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
     />
     <style>
-      /* Используем флекс-контейнеры для разделения */
       .flex-container {
         display: flex;
         justify-content: space-between;
         flex-direction: column;
-
         min-height: 100vh;
+      }
+
+      .alert-custom {
+        margin-top: 20px;
       }
     </style>
   </head>
   <body>
     <div class="flex-container">
-      <!-- Хедер -->
       <header class="header">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
           <a class="navbar-brand" href="#">Hive Tool</a>
@@ -50,9 +50,11 @@
         </nav>
       </header>
 
-      <!-- Основная часть -->
       <main class="main-content container mt-5">
         <h1 class="text-center mb-4">Whose stats do you want to see?</h1>
+
+        <div id="messageContainer" class="text-center"></div>
+
         <div class="d-flex justify-content-center">
           <div class="form-group mr-3">
             <label for="nickname">Enter Nickname:</label>
@@ -67,13 +69,13 @@
           <div class="form-group">
             <label for="gameMode">Select Game Mode:</label>
             <select class="form-control" id="gameMode">
-              <option value="bed">Bed</option>
-              <option value="sky">Sky</option>
-              <option value="wars">Wars</option>
-              <option value="murder">Murder</option>
-              <option value="dr">DR</option>
-              <option value="party">Party</option>
-              <option value="ground">Ground</option>
+              <option value="bed">BedWars</option>
+              <option value="sky">SkyWars</option>
+              <option value="wars">Treasure Wars</option>
+              <option value="murder">Murder Mystery</option>
+              <option value="dr">Deathrun</option>
+              <option value="party">Block Party</option>
+              <option value="ground">Ground Wars</option>
             </select>
           </div>
         </div>
@@ -82,7 +84,6 @@
         </div>
       </main>
 
-      <!-- Футер -->
       <footer class="footer text-center bg-light py-3">
         <p class="mb-0">
           © HiveTool 2025 - Made with
@@ -98,17 +99,28 @@
         const gameMode = document.getElementById('gameMode').value;
 
         if (!nickname || !gameMode) {
-          alert('Please enter a correct nickname and select a game mode.');
-          return; // Выход, если нет данных
+          displayMessage(
+            'Please enter a correct nickname and select a game mode.',
+            'danger'
+          );
+          return;
         }
 
         const statsUrl = `stats.html?gameMode=${gameMode}&nickname=${nickname}`;
-        console.log('Redirecting to:', statsUrl); // Для отладки
+        console.log('Redirecting to:', statsUrl);
         window.location.href = statsUrl;
       });
+
+      function displayMessage(message, type) {
+        const messageContainer = document.getElementById('messageContainer');
+        messageContainer.innerHTML = `
+          <div class="alert alert-${type} alert-custom" role="alert">
+            ${message}
+          </div>
+        `;
+      }
     </script>
 
-    <!-- Подключаем Bootstrap JS и зависимости без атрибута integrity -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Player Stats</title>
-    <!-- Подключаем Bootstrap -->
     <link
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
@@ -19,6 +18,10 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
+
+      .alert-custom {
+        margin-top: 20px;
+      }
     </style>
   </head>
   <body>
@@ -28,7 +31,6 @@
         <a href="index.html" class="btn btn-primary">Back to Home</a>
       </div>
 
-      <!-- Форма для ввода данных -->
       <div class="text-center my-3">
         <input
           type="text"
@@ -46,6 +48,8 @@
         />
         <button id="fetchStatsBtn" class="btn btn-primary">Fetch Stats</button>
       </div>
+
+      <div id="messageContainer" class="text-center"></div>
 
       <div id="stats" class="row mt-3"></div>
     </div>
@@ -67,61 +71,90 @@
             desiredWinrate < 0 ||
             desiredWinrate > 100
           ) {
-            alert(
-              'Please enter both nickname and a valid desired winrate between 0 and 100.'
+            displayMessage(
+              'Enter both nickname and a valid winrate (0-100).',
+              'danger'
             );
+
             return;
           }
 
-          const gameMode = 'bed'; // Можно добавить выбор игрового режима
+          const gameMode = 'bed';
           const apiUrl = `https://api.playhive.com/v0/game/all/${gameMode}/${nickname}`;
 
           fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-              if (data && data.played) {
-                const wins = data.victories;
-                const played = data.played;
-
-                // Вычисляем необходимое количество побед для достижения желаемого винрейта
-                const requiredWins = Math.ceil((desiredWinrate / 100) * played);
-                const gamesRemaining = Math.max(0, requiredWins - wins);
-
-                // Отображаем статистику
-                displayStats(data, desiredWinrate, gamesRemaining);
-              } else {
-                document.getElementById('stats').innerHTML =
-                  '<p class="text-center text-warning">Player has no stats or has not played the game.</p>';
+              if (data.error) {
+                displayMessage('Error fetching data for the player.', 'danger');
+                return;
               }
+
+              const currentWins = data.victories;
+              const gamesPlayed = data.played;
+              const currentLosses = gamesPlayed - currentWins;
+              const currentWinrate = currentWins / gamesPlayed;
+
+              const requiredWins =
+                ((desiredWinrate / 100) * gamesPlayed - currentWins) /
+                (1 - desiredWinrate / 100);
+              const gamesRemaining = Math.max(0, Math.ceil(requiredWins));
+
+              displayStats(
+                data,
+                currentWinrate,
+                desiredWinrate,
+                gamesRemaining
+              );
+
+              clearMessage();
             })
             .catch(error => {
-              console.error('Error fetching data:', error);
-              document.getElementById('stats').innerHTML =
-                '<p class="text-center text-danger">Error fetching data.</p>';
+              displayMessage(
+                'There was an error fetching the stats.',
+                'danger'
+              );
+              console.error(error);
             });
         });
 
-      function displayStats(data, desiredWinrate, gamesRemaining) {
-        const statsContainer = document.getElementById('stats');
+      function displayMessage(message, type) {
+        const messageContainer = document.getElementById('messageContainer');
+        messageContainer.innerHTML = `
+          <div class="alert alert-${type} alert-custom" role="alert">
+            ${message}
+          </div>
+        `;
+      }
 
-        // Сначала очищаем контейнер
+      function clearMessage() {
+        const messageContainer = document.getElementById('messageContainer');
+        messageContainer.innerHTML = '';
+      }
+
+      function displayStats(
+        data,
+        currentWinrate,
+        desiredWinrate,
+        gamesRemaining
+      ) {
+        const statsContainer = document.getElementById('stats');
         statsContainer.innerHTML = '';
 
-        // Добавляем карточки с основными данными
         const stats = [
           { label: 'Games Played', value: data.played },
           { label: 'Wins', value: data.victories },
           { label: 'Losses', value: data.played - data.victories },
           {
             label: 'Current Winrate',
-            value: `${((data.victories / data.played) * 100).toFixed(2)}%`,
+            value: `${(currentWinrate * 100).toFixed(2)}%`,
           },
         ];
 
         stats.forEach(stat => {
           const statElement = document.createElement('div');
           statElement.classList.add('col-md-4', 'my-2');
-          statElement.innerHTML = `
+          statElement.innerHTML = ` 
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">${stat.label}</h5>
@@ -132,7 +165,6 @@
           statsContainer.appendChild(statElement);
         });
 
-        // Добавляем информацию о недостающих играх
         const gamesRemainingElement = document.createElement('div');
         gamesRemainingElement.classList.add('col-md-4', 'my-2');
         gamesRemainingElement.innerHTML = `
@@ -149,7 +181,6 @@
       }
     </script>
 
-    <!-- Подключаем Bootstrap JS и зависимые библиотеки (Popper.js и jQuery) -->
     <script
       src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
       crossorigin="anonymous"
