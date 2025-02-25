@@ -21,6 +21,8 @@
   "author": "BABYFIXIE",
   "license": "ISC",
   "dependencies": {
+    "datatables.net": "^2.2.2",
+    "datatables.net-dt": "^2.2.2",
     "vite-plugin-full-reload": "^1.2.0",
     "vite-plugin-html-inject": "^1.1.2"
   },
