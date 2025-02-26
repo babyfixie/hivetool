@@ -4,12 +4,56 @@ const urlParams = new URLSearchParams(window.location.search);
 const gameMode = urlParams.get('gameMode');
 const nickname = urlParams.get('nickname');
 const apiUrl = `https://api.playhive.com/v0/game/all/${gameMode}/${nickname}`;
+const userInfoUrl = `https://api.playhive.com/v0/game/all/main/${nickname}`;
 
 let playerData = null;
 
+function fetchPlayerData() {
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      if (data) {
+        fetchUserInfo();
+        displayStats(data);
+      } else {
+        document.getElementById('stats').innerHTML =
+          '<p class="text-center text-danger">No data available for this player.</p>';
+      }
+    })
+    .catch(() => {
+      document.getElementById('stats').innerHTML =
+        '<p class="text-center text-danger">Error fetching game data.</p>';
+    });
+}
+
+function fetchUserInfo() {
+  fetch(userInfoUrl)
+    .then(response => response.json())
+    .then(data => {
+      const formattedUsername = data?.main?.username_cc || nickname;
+      const rank = data?.main?.rank || null;
+
+      if (rank === 'PLUS') {
+        document.getElementById(
+          'pageTitle'
+        ).innerHTML = `<span style="color: #55FF55;">${formattedUsername}</span> Stats`;
+      } else if (rank === 'HIVE_TEAM') {
+        document.getElementById(
+          'pageTitle'
+        ).innerHTML = `<span style="color: #FFFF55;">${formattedUsername}</span> Stats`;
+      } else {
+        document.getElementById(
+          'pageTitle'
+        ).innerText = `${formattedUsername} Stats`;
+      }
+    })
+    .catch(() => {
+      document.getElementById('pageTitle').innerText = `${nickname} Stats`;
+    });
+}
+
 function displayStats(data) {
   const statsContainer = document.getElementById('stats');
-
   const gameData = gameMode === 'main' ? data.main : data;
 
   if (!gameData) {
@@ -28,25 +72,14 @@ function displayStats(data) {
   const kdr = deaths > 0 ? (kills / deaths).toFixed(5) : 'N/A';
 
   presets[gameMode].forEach(preset => {
-    let fieldValue = 'N/A'; // Значение по умолчанию
-
-    if (gameData[preset.field] !== undefined) {
-      if (
-        preset.field === 'equipped_avatar' &&
-        gameData[preset.field] &&
-        gameData[preset.field].name
-      ) {
-        // Если поле "equipped_avatar" существует и в нем есть поле "name"
-        fieldValue = gameData[preset.field].name;
-      } else {
-        // В другом случае просто берем значение
-        fieldValue = gameData[preset.field];
-      }
+    let fieldValue = gameData[preset.field] ?? 'N/A';
+    if (preset.field === 'equipped_avatar' && gameData[preset.field]?.name) {
+      fieldValue = gameData[preset.field].name;
     }
 
     const statElement = document.createElement('div');
     statElement.classList.add('col-md-4', 'my-2');
-    statElement.innerHTML = `
+    statElement.innerHTML = ` 
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">${preset.label}</h5>
@@ -60,7 +93,7 @@ function displayStats(data) {
   if (gameMode !== 'main') {
     const statElementLosses = document.createElement('div');
     statElementLosses.classList.add('col-md-4', 'my-2');
-    statElementLosses.innerHTML = `
+    statElementLosses.innerHTML = ` 
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">Losses</h5>
@@ -72,7 +105,7 @@ function displayStats(data) {
 
     const statElementWlr = document.createElement('div');
     statElementWlr.classList.add('col-md-4', 'my-2');
-    statElementWlr.innerHTML = `
+    statElementWlr.innerHTML = ` 
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">WLR</h5>
@@ -84,7 +117,7 @@ function displayStats(data) {
 
     const statElementKdr = document.createElement('div');
     statElementKdr.classList.add('col-md-4', 'my-2');
-    statElementKdr.innerHTML = `
+    statElementKdr.innerHTML = ` 
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">KDR</h5>
@@ -116,21 +149,4 @@ function downloadData() {
 
 document.getElementById('downloadBtn').addEventListener('click', downloadData);
 
-fetch(apiUrl)
-  .then(response => response.json())
-  .then(data => {
-    if (gameMode !== 'main' && !data.xp) {
-      document.getElementById('stats').innerHTML =
-        '<p class="text-center text-warning">Player hasn\'t played the game yet.</p>';
-    } else if (data) {
-      displayStats(data);
-    } else {
-      document.getElementById('stats').innerHTML =
-        '<p class="text-center text-danger">No data available for this player.</p>';
-    }
-  })
-  .catch(error => {
-    console.error('Error fetching data:', error);
-    document.getElementById('stats').innerHTML =
-      '<p class="text-center text-danger">Error fetching data.</p>';
-  });
+fetchPlayerData();

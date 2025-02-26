@@ -4,9 +4,9 @@ export const presets = {
     { label: 'Username', field: 'username_cc' },
     { label: 'Rank', field: 'rank' },
     { label: 'Equipped Avatar', field: 'equipped_avatar' },
-    { label: 'Daily Login Streak', field: 'daily_login_streak' },
+    { label: 'Login Streak', field: 'daily_login_streak' },
     {
-      label: 'Longest Daily Login Streak',
+      label: 'Longest Login Streak',
       field: 'longest_daily_login_streak',
     },
     { label: 'Equipped Hub Title', field: 'equipped_hub_title' },
@@ -72,7 +72,6 @@ export const presets = {
   ground: [
     { label: 'XP', field: 'xp' },
     { label: 'Games Played', field: 'played' },
-    { label: 'First Played', field: 'first_played' },
     { label: 'Blocks Destroyed', field: 'blocks_destroyed' },
     { label: 'Blocks Placed', field: 'blocks_placed' },
     { label: 'Deaths', field: 'deaths' },

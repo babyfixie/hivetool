@@ -9,6 +9,7 @@
       rel="stylesheet"
       crossorigin="anonymous"
     />
+
     <style>
       .card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -22,12 +23,23 @@
   </head>
   <body>
     <div class="container">
-      <h1 class="text-center my-3">Player Stats</h1>
+      <h1 class="text-center my-3" id="pageTitle">Player Stats</h1>
       <div class="text-center mb-3">
-        <a href="index.html" class="btn btn-primary">Back to Home</a>
+        <a href="index.html" class="btn btn-primary"
+          ><img
+            src="https://img.icons8.com/?size=25&id=26191&format=png&color=ffffff"
+            alt=""
+        /></a>
+        <!-- <a href="index.html" class="btn btn-primary">Back to Home</a> -->
         <button id="downloadBtn" class="btn btn-success ml-3">
-          Download Data
+          <img
+            src="https://img.icons8.com/?size=25&id=fO6ITgS0X4bb&format=png&color=ffffff"
+            alt=""
+          />
         </button>
+        <!-- <button id="downloadBtn" class="btn btn-success ml-3">
+          Download Data
+        </button> -->
       </div>
 
       <div id="stats" class="row"></div>
