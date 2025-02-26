@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Leaderboard</title>
+    <title>Leaderboards</title>
     <link
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
@@ -34,36 +34,46 @@
         <a href="index.html" class="btn btn-primary">Back to Home</a>
       </div>
 
-      <!-- Dropdown to select game mode -->
-      <div class="form-group text-center">
-        <label for="gameSelect">Select Game Mode:</label>
-        <select
-          class="form-control"
-          id="gameSelect"
-          onchange="fetchLeaderboard()"
-        >
-          <option value="bed">Bed Wars</option>
-          <option value="sky">Sky Wars</option>
-          <option value="ground">Ground Wars</option>
-          <option value="murder">Murder Mystery</option>
-          <option value="wars">Treasure Wars</option>
-          <option value="party">Party Games</option>
-          <option value="dr">Death Run</option>
-        </select>
+      <div class="form-group row">
+        <div class="col-md-6">
+          <label for="gameSelect">Select Game Mode:</label>
+          <select
+            class="form-control"
+            id="gameSelect"
+            onchange="fetchLeaderboard()"
+          >
+            <option value="bed">Bed Wars</option>
+            <option value="sky">Sky Wars</option>
+            <option value="ground">Ground Wars</option>
+            <option value="murder">Murder Mystery</option>
+            <option value="wars">Treasure Wars</option>
+            <option value="party">Party Games</option>
+            <option value="dr">Death Run</option>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label for="usernameSearch">Search by Username:</label>
+          <input
+            type="text"
+            id="usernameSearch"
+            class="form-control"
+            placeholder="Enter username"
+            oninput="filterLeaderboard()"
+          />
+        </div>
       </div>
 
-      <!-- Table to display leaderboard -->
       <table class="table table-striped table-bordered table-hover">
-        <thead id="table-head">
+        <thead>
           <tr>
             <th>#</th>
             <th>Username</th>
             <th>XP</th>
             <th>Games Played</th>
             <th>Victories</th>
-            <!-- Columns for "Kills" and "Deaths" will be dynamically adjusted -->
-            <th id="deaths-column">Deaths</th>
-            <th id="kills-column">Kills</th>
+            <th>Deaths</th>
+            <th>Kills</th>
           </tr>
         </thead>
         <tbody id="leaderboard"></tbody>
@@ -71,19 +81,17 @@
     </div>
 
     <script>
-      // Function to fetch leaderboard data based on selected game mode
+      let leaderboardData = [];
+
       function fetchLeaderboard() {
         const selectedGame = document.getElementById('gameSelect').value;
         const apiUrl = `https://api.playhive.com/v0/game/all/${selectedGame}`;
 
-        // Adjust columns based on the game mode
-        adjustTableColumns(selectedGame);
-
-        // Fetch leaderboard data from the selected game mode
         fetch(apiUrl)
           .then(response => response.json())
           .then(data => {
             if (data && Array.isArray(data)) {
+              leaderboardData = data;
               displayLeaderboard(data, selectedGame);
             } else {
               document.getElementById('leaderboard').innerHTML =
@@ -97,40 +105,19 @@
           });
       }
 
-      // Function to adjust the table columns based on the game mode
-      function adjustTableColumns(gameMode) {
-        const deathsColumn = document.getElementById('deaths-column');
-        const killsColumn = document.getElementById('kills-column');
-
-        if (gameMode === 'party') {
-          // Remove both Deaths and Kills columns for "Party Games"
-          deathsColumn.style.display = 'none';
-          killsColumn.style.display = 'none';
-        } else {
-          // Restore the columns for other game modes
-          deathsColumn.style.display = '';
-          killsColumn.style.display = '';
-        }
-      }
-
-      // Function to display the leaderboard data
       function displayLeaderboard(players, gameMode) {
         const leaderboardTable = document.getElementById('leaderboard');
-        leaderboardTable.innerHTML = ''; // Clear previous data
+        leaderboardTable.innerHTML = '';
         players.forEach(player => {
           const playerRow = document.createElement('tr');
           let killsColumn = '';
-          let deathsColumn = '';
 
           if (gameMode === 'murder') {
-            killsColumn = player.murders; // For "Murder Mystery", show "murders"
-            deathsColumn = player.deaths; // Show deaths for "Murder Mystery"
+            killsColumn = player.murders;
           } else if (gameMode === 'party') {
-            killsColumn = ''; // No kills for "Party Games"
-            deathsColumn = ''; // No deaths for "Party Games"
+            killsColumn = '-';
           } else {
-            killsColumn = player.kills; // For other game modes, show "kills"
-            deathsColumn = player.deaths; // Show "deaths"
+            killsColumn = player.kills;
           }
 
           playerRow.innerHTML = `
@@ -139,14 +126,24 @@
             <td>${player.xp}</td>
             <td>${player.played}</td>
             <td>${player.victories}</td>
-            <td>${deathsColumn}</td>
+            <td>${player.deaths}</td>
             <td>${killsColumn}</td>
           `;
           leaderboardTable.appendChild(playerRow);
         });
       }
 
-      // Initialize leaderboard when page loads with default game mode
+      function filterLeaderboard() {
+        const searchTerm = document
+          .getElementById('usernameSearch')
+          .value.toLowerCase();
+        const filteredData = leaderboardData.filter(player =>
+          player.username.toLowerCase().includes(searchTerm)
+        );
+        const selectedGame = document.getElementById('gameSelect').value;
+        displayLeaderboard(filteredData, selectedGame);
+      }
+
       window.onload = fetchLeaderboard;
     </script>
 

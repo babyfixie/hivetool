@@ -10,7 +10,8 @@ let win;
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 1300,
+    icon: 'assets/icon.ico',
+    width: 800,
     height: 700,
     webPreferences: {
       nodeIntegration: false,
