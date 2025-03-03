@@ -5,8 +5,10 @@ const gameMode = urlParams.get('gameMode');
 const nickname = urlParams.get('nickname');
 const apiUrl = `https://api.playhive.com/v0/game/all/${gameMode}/${nickname}`;
 const userInfoUrl = `https://api.playhive.com/v0/game/all/main/${nickname}`;
+const gameMetaUrl = `https://api.playhive.com/v0/game/meta/${gameMode}`;
 
 let playerData = null;
+let gameMetaData = null;
 
 function fetchPlayerData() {
   fetch(apiUrl)
@@ -14,6 +16,7 @@ function fetchPlayerData() {
     .then(data => {
       if (data) {
         fetchUserInfo();
+        fetchGameMeta();
         displayStats(data);
       } else {
         document.getElementById('stats').innerHTML =
@@ -40,7 +43,7 @@ function fetchUserInfo() {
       } else if (rank === 'HIVE_TEAM') {
         document.getElementById(
           'pageTitle'
-        ).innerHTML = `<span style="color: #FFFF55;">${formattedUsername}</span> Stats`;
+        ).innerHTML = `<span style="color:rgb(255, 255, 32);">${formattedUsername}</span> Stats`;
       } else {
         document.getElementById(
           'pageTitle'
@@ -52,7 +55,53 @@ function fetchUserInfo() {
     });
 }
 
+function fetchGameMeta() {
+  fetch(gameMetaUrl)
+    .then(response => response.json())
+    .then(data => {
+      if (data) {
+        gameMetaData = data;
+        displayPlayerLevel();
+      }
+    })
+    .catch(() => {
+      console.error('Error fetching game metadata.');
+    });
+}
+
+function displayPlayerLevel() {
+  if (!gameMetaData || !playerData) return;
+
+  const xp = playerData.xp ?? 0;
+  let level = 0;
+
+  for (const [xpThreshold, levelNum] of Object.entries(
+    gameMetaData.experienceToLevel
+  )) {
+    if (xp >= xpThreshold) {
+      level = levelNum + 1;
+    } else {
+      break;
+    }
+  }
+
+  const statsContainer = document.getElementById('stats');
+  const levelCard = document.createElement('div');
+  levelCard.classList.add('col-md-4', 'my-2');
+  levelCard.innerHTML = ` 
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Level</h5>
+        <p class="card-text">${level}</p>
+      </div>
+    </div>
+  `;
+  statsContainer.insertBefore(levelCard, statsContainer.firstChild);
+}
+
 function displayStats(data) {
+  console.log(data);
+
   const statsContainer = document.getElementById('stats');
   const gameData = gameMode === 'main' ? data.main : data;
 
@@ -62,14 +111,23 @@ function displayStats(data) {
     return;
   }
 
+  if (gameMode !== 'main') {
+    if (!data.xp) {
+      document.getElementById('downloadBtn').style.display = 'none';
+      statsContainer.innerHTML =
+        '<p class="text-center text-warning">This player hasnt played yet.</p>';
+      return;
+    }
+  }
+
   const wins = gameData.victories ?? 0;
   const played = gameData.played ?? 0;
   const kills = gameData.kills ?? 0;
   const deaths = gameData.deaths ?? 0;
 
   const losses = played - wins;
-  const lossesWlr = losses > 0 ? (100 * (wins / played)).toFixed(5) : 'N/A';
-  const kdr = deaths > 0 ? (kills / deaths).toFixed(5) : 'N/A';
+  const lossesWlr = losses > 0 ? (100 * (wins / played)).toFixed(3) : 'N/A';
+  const kdr = deaths > 0 ? (kills / deaths).toFixed(3) : 'N/A';
 
   presets[gameMode].forEach(preset => {
     let fieldValue = gameData[preset.field] ?? 'N/A';
@@ -109,7 +167,7 @@ function displayStats(data) {
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">WLR</h5>
-        <p class="card-text">${lossesWlr}</p>
+        <p class="card-text">${lossesWlr}%</p>
       </div>
     </div>
   `;
@@ -132,11 +190,6 @@ function displayStats(data) {
 }
 
 function downloadData() {
-  if (!playerData) {
-    alert('No data available to download.');
-    return;
-  }
-
   const dataStr = JSON.stringify(playerData, null, 2);
   const blob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);

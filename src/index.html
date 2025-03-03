@@ -22,6 +22,18 @@
     </style>
   </head>
   <body>
+    <div
+      class="position-absolute top-0 left-0 w-100 h-100 bg-image"
+      style="
+        background-image: url('img/bg1.png');
+        background-repeat: no-repeat;
+        background-size: cover;
+        z-index: -1;
+        opacity: 0.3;
+        -webkit-filter: blur(4px);
+        filter: blur(4px);
+      "
+    ></div>
     <div class="flex-container">
       <header class="header">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -48,6 +60,9 @@
               <li class="nav-item">
                 <a class="nav-link" href="leaderboard.html">Leaderboards</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="maps.html">Maps</a>
+              </li>
             </ul>
           </div>
         </nav>
@@ -66,7 +81,6 @@
               class="form-control"
               id="nickname"
               placeholder="Enter nickname"
-              value="babyfixie"
             />
           </div>
           <div class="form-group">
@@ -99,6 +113,19 @@
     </div>
 
     <script>
+      window.onload = function () {
+        const savedNickname = localStorage.getItem('nickname');
+        const savedGameMode = localStorage.getItem('gameMode');
+
+        if (savedNickname) {
+          document.getElementById('nickname').value = savedNickname;
+        }
+
+        if (savedGameMode) {
+          document.getElementById('gameMode').value = savedGameMode;
+        }
+      };
+
       document.getElementById('searchBtn').addEventListener('click', event => {
         event.preventDefault();
         const nickname = document.getElementById('nickname').value.trim();
@@ -112,6 +139,9 @@
           return;
         }
 
+        localStorage.setItem('nickname', nickname);
+        localStorage.setItem('gameMode', gameMode);
+
         const statsUrl = `stats.html?gameMode=${gameMode}&nickname=${nickname}`;
         console.log('Redirecting to:', statsUrl);
         window.location.href = statsUrl;
@@ -119,13 +149,15 @@
 
       function displayMessage(message, type) {
         const messageContainer = document.getElementById('messageContainer');
-        messageContainer.innerHTML = `
+        messageContainer.innerHTML = `  
           <div class="alert alert-${type} alert-custom" role="alert">
             ${message}
           </div>
         `;
       }
     </script>
+
+    <script src="escapeListener.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>

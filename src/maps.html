@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maps</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <style>
+      .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      th {
+        cursor: pointer;
+      }
+      .card-img-top {
+        max-height: 200px;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1 class="text-center my-4">Maps</h1>
+      <div class="text-center mb-4">
+        <a href="index.html" class="btn btn-primary">
+          <img
+            src="https://img.icons8.com/?size=23&id=26191&format=png&color=ffffff"
+            alt=""
+          />
+        </a>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-md-4">
+          <label for="gameSelect">Select Game Mode:</label>
+          <select class="form-control" id="gameSelect" onchange="fetchMaps()">
+            <option value="bed">Bed Wars</option>
+            <option value="sky">Sky Wars</option>
+            <option value="ground">Ground Wars</option>
+            <option value="murder">Murder Mystery</option>
+            <option value="wars">Treasure Wars</option>
+            <option value="dr">Death Run</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label for="mapTypeSelect">Select Map Type:</label>
+          <select
+            class="form-control"
+            id="mapTypeSelect"
+            onchange="fetchMaps()"
+          >
+            <option value="all">All</option>
+            <option value="REGULAR">SOLO</option>
+            <option value="DUOS">DUOS</option>
+            <option value="SQUADS">SQUADS</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label for="nameSearch">Search by name:</label>
+          <input
+            type="text"
+            id="nameSearch"
+            class="form-control"
+            placeholder="Enter name"
+            oninput="fetchMaps()"
+          />
+        </div>
+      </div>
+
+      <div id="mapCards" class="row"></div>
+    </div>
+
+    <script type="module" src="escapeListener.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="maps.js"></script>
+  </body>
+</html>
