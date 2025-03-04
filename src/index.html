@@ -9,15 +9,33 @@
       rel="stylesheet"
     />
     <style>
+      .history-item {
+        font-weight: 400;
+      }
       .flex-container {
         display: flex;
         justify-content: space-between;
         flex-direction: column;
         min-height: 100vh;
       }
-
       .alert-custom {
         margin-top: 20px;
+      }
+      .history-item {
+        cursor: pointer;
+        padding: 5px;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        display: inline-block;
+      }
+      .history-item:hover {
+        background-color: #f0f0f0;
+      }
+      #historyContainer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
       }
     </style>
   </head>
@@ -97,6 +115,12 @@
             </select>
           </div>
         </div>
+
+        <div id="historyContainer" class="d-flex flex-column text-center mt-4">
+          <h4 id="historyTitle">History:</h4>
+          <div id="historyList"></div>
+        </div>
+
         <div class="text-center mt-4">
           <button id="searchBtn" class="btn btn-primary btn-lg">Search</button>
         </div>
@@ -114,6 +138,8 @@
 
     <script>
       window.onload = function () {
+        loadHistory();
+
         const savedNickname = localStorage.getItem('nickname');
         const savedGameMode = localStorage.getItem('gameMode');
 
@@ -142,6 +168,20 @@
         localStorage.setItem('nickname', nickname);
         localStorage.setItem('gameMode', gameMode);
 
+        const searchHistory = getSearchHistory();
+        const newSearch = { nickname, gameMode };
+
+        const searchExists = searchHistory.some(
+          item => item.nickname === nickname && item.gameMode === gameMode
+        );
+
+        if (!searchExists) {
+          searchHistory.push(newSearch);
+          if (searchHistory.length > 5) searchHistory.shift();
+
+          localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+        }
+
         const statsUrl = `stats.html?gameMode=${gameMode}&nickname=${nickname}`;
         console.log('Redirecting to:', statsUrl);
         window.location.href = statsUrl;
@@ -154,6 +194,36 @@
             ${message}
           </div>
         `;
+      }
+
+      function getSearchHistory() {
+        const history = localStorage.getItem('searchHistory');
+        return history ? JSON.parse(history) : [];
+      }
+
+      function loadHistory() {
+        const history = getSearchHistory();
+        const historyList = document.getElementById('historyList');
+        const historyTitle = document.getElementById('historyTitle');
+        historyList.innerHTML = '';
+
+        if (history.length === 0) {
+          historyTitle.style.display = 'none';
+        } else {
+          historyTitle.style.display = 'block';
+          history.forEach(item => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.textContent = `${
+              item.nickname
+            } - ${item.gameMode.toUpperCase()}`;
+            historyItem.addEventListener('click', () => {
+              document.getElementById('nickname').value = item.nickname;
+              document.getElementById('gameMode').value = item.gameMode;
+            });
+            historyList.appendChild(historyItem);
+          });
+        }
       }
     </script>
 
