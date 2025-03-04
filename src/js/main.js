@@ -20,7 +20,7 @@ function createWindow() {
 
   win.setMenuBarVisibility(false);
 
-  win.loadFile(path.join(__dirname, 'index.html'));
+  win.loadFile(path.join(__dirname, '../index.html'));
 }
 
 app.whenReady().then(() => {

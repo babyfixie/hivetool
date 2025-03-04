@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build --base=/vanilla-app-template/",
     "preview": "vite preview",
-    "start": "electron ./src/main.js",
+    "start": "electron ./src/js/main.js",
     "dist": "electron-builder"
   },
   "devDependencies": {
@@ -25,7 +25,7 @@
     "vite-plugin-full-reload": "^1.2.0",
     "vite-plugin-html-inject": "^1.1.2"
   },
-  "main": "src/main.js",
+  "main": "src/js/main.js",
   "build": {
     "appId": "com.myapp.app",
     "productName": "The Hive Tool",

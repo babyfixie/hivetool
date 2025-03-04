@@ -9,24 +9,8 @@
       rel="stylesheet"
       crossorigin="anonymous"
     />
-    <style>
-      .card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
-      .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      }
-      th {
-        cursor: pointer;
-      }
-      .card-img-top {
-        max-height: 200px;
-        object-fit: cover;
-      }
-    </style>
+    <link rel="stylesheet" href="css/maps.css" />
   </head>
-
   <body>
     <div class="container">
       <h1 class="text-center my-4">Maps</h1>
@@ -81,7 +65,9 @@
       <div id="mapCards" class="row"></div>
     </div>
 
-    <script type="module" src="escapeListener.js"></script>
+    <script type="module" src="js/maps.js"></script>
+    <script type="module" src="js/escapeListener.js"></script>
+
     <script
       src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
       crossorigin="anonymous"
@@ -94,7 +80,5 @@
       src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
       crossorigin="anonymous"
     ></script>
-
-    <script src="maps.js"></script>
   </body>
 </html>
