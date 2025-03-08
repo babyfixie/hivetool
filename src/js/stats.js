@@ -62,6 +62,7 @@ function fetchGameMeta() {
       if (data) {
         gameMetaData = data;
         displayPlayerLevel();
+        displayPlayerEfficiency();
       }
     })
     .catch(() => {
@@ -97,6 +98,89 @@ function displayPlayerLevel() {
     </div>
   `;
   statsContainer.insertBefore(levelCard, statsContainer.firstChild);
+}
+
+function displayPlayerEfficiency() {
+  if (!gameMetaData || !playerData) return;
+
+  let efficiency = 0;
+  const statsContainer = document.getElementById('stats');
+
+  if (gameMode === 'bed') {
+    const kills = playerData.kills ?? 0;
+    const finalKills = playerData.final_kills ?? 0;
+    const bedsDestroyed = playerData.beds_destroyed ?? 0;
+    const played = playerData.played ?? 0;
+
+    const killProbability = 0.2 * (kills / played);
+    const finalKillProbability = 0.3 * (finalKills / played);
+    const bedDestructionProbability = 0.4 * (bedsDestroyed / played);
+
+    efficiency =
+      100 *
+      (parseFloat(killProbability) +
+        parseFloat(finalKillProbability) +
+        parseFloat(bedDestructionProbability));
+  } else if (gameMode === 'wars') {
+    const kills = playerData.kills ?? 0;
+    const finalKills = playerData.final_kills ?? 0;
+    const treasuresDestroyed = playerData.treasure_destroyed ?? 0;
+    const played = playerData.played ?? 0;
+
+    const killProbability = 0.2 * (kills / played);
+    const finalKillProbability = 0.3 * (finalKills / played);
+    const treasureProbability = 0.4 * (treasuresDestroyed / played);
+
+    efficiency =
+      100 *
+      (parseFloat(killProbability) +
+        parseFloat(finalKillProbability) +
+        parseFloat(treasureProbability));
+  } else if (gameMode === 'sky') {
+    const kills = playerData.kills ?? 0;
+    const mysteryChestsDestroyed = playerData.mystery_chests_destroyed ?? 0;
+    const oresMined = playerData.ores_mined ?? 0;
+    const played = playerData.played ?? 0;
+
+    const killProbability = 0.25 * (kills / played);
+    const mysteryChestProbability = 0.2 * (mysteryChestsDestroyed / played);
+    const oresMinedProbability = 0.15 * (oresMined / played);
+
+    efficiency =
+      100 *
+      (parseFloat(killProbability) +
+        parseFloat(mysteryChestProbability) +
+        parseFloat(oresMinedProbability));
+  } else {
+    efficiency = 0;
+  }
+
+  const efficiencyCard = document.createElement('div');
+  efficiencyCard.classList.add('col-md-4', 'my-2');
+  efficiencyCard.innerHTML = ` 
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Efficiency</h5>
+        <p class="card-text efficiency">${efficiency.toFixed(3)}</p>
+      </div>
+    </div>
+  `;
+
+  statsContainer.insertBefore(efficiencyCard, statsContainer.children[1]);
+
+  const efficiencyElement = efficiencyCard.querySelector('.efficiency');
+
+  if (efficiency < 50) {
+    efficiencyElement.style.color = 'red';
+  } else if (efficiency >= 50 && efficiency < 85) {
+    efficiencyElement.style.color = 'yellow';
+  } else if (efficiency >= 85) {
+    efficiencyElement.style.color = 'green';
+  }
+
+  console.log(efficiency, kills, mysteryChestsDestroyed, oresMined);
+
+  statsContainer.insertBefore(efficiencyCard, statsContainer.children[1]);
 }
 
 function displayStats(data) {
@@ -190,12 +274,20 @@ function displayStats(data) {
 }
 
 function downloadData() {
-  const dataStr = JSON.stringify(playerData, null, 2);
+  const dataWithGameMode = {
+    date: new Date().toISOString(),
+    gameMode: gameMode,
+    playerName: nickname,
+    playerData: playerData,
+  };
+
+  const dataStr = JSON.stringify(dataWithGameMode, null, 2);
   const blob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
+
   a.href = url;
-  a.download = `${nickname}_${gameMode}stats.json`;
+  a.download = `${nickname}_${gameMode}_stats.json`;
   a.click();
   URL.revokeObjectURL(url);
 }

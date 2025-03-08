@@ -3,19 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Player Stats</title>
+    <title>Comparison</title>
     <link
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="css/winrate.css" />
+    <link rel="stylesheet" href="css/comparison.css" />
     <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
     <div class="container">
-      <h1 class="text-center my-3">Winrate Calculator</h1>
-      <div class="text-left my-2">
+      <h1 class="text-center my-4">Comparison</h1>
+      <div class="text-left">
         <a href="index.html" class="btn btn-primary back-button">
           <img
             src="https://img.icons8.com/?size=23&id=26191&format=png&color=ffffff"
@@ -23,33 +23,20 @@
           />
         </a>
       </div>
-
-      <div class="text-center my-3">
-        <input
-          type="text"
-          id="nicknameInput"
-          class="form-control w-50 mx-auto mb-2"
-          placeholder="Enter Nickname"
-        />
-        <input
-          type="number"
-          id="desiredWinrateInput"
-          class="form-control w-50 mx-auto mb-2"
-          placeholder="Enter Desired Winrate (%)"
-          min="0"
-          max="100"
-        />
-        <button id="fetchStatsBtn" class="btn btn-primary">Calculate</button>
+      <div class="text-center mb-2">
+        <input type="file" id="fileInput" multiple accept=".json" />
+        <button class="btn btn-success" id="compareBtn">
+          <img
+            src="https://img.icons8.com/?size=25&id=bSeZPpZkPtw6&format=png&color=ffffff"
+            alt=""
+          />
+        </button>
       </div>
-
-      <div id="messageContainer" class="text-center"></div>
-
-      <div id="stats" class="row mt-3"></div>
+      <div id="comparisonResult"></div>
     </div>
 
-    <script type="module" src="js/winrate.js"></script>
+    <script type="module" src="js/comparison.js"></script>
     <script type="module" src="js/escapeListener.js"></script>
-
     <script
       src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
       crossorigin="anonymous"

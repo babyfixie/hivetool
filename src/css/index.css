@@ -1,3 +1,8 @@
+.navbar-toggler:hover,
+.navbar-toggler:focus {
+  outline: none;
+  box-shadow: none;
+}
 .history-item {
   font-weight: 400;
 }

@@ -1,6 +1,6 @@
-let leaderboardData = [];
+window.leaderboardData = [];
 
-function fetchLeaderboard() {
+window.fetchLeaderboard = function () {
   const selectedGame = document.getElementById('gameSelect').value;
   const apiUrl = `https://api.playhive.com/v0/game/all/${selectedGame}`;
 
@@ -8,8 +8,8 @@ function fetchLeaderboard() {
     .then(response => response.json())
     .then(data => {
       if (data && Array.isArray(data)) {
-        leaderboardData = data;
-        displayLeaderboard(data, selectedGame);
+        window.leaderboardData = data;
+        window.displayLeaderboard(data, selectedGame);
       } else {
         document.getElementById('leaderboard').innerHTML =
           '<tr><td colspan="7" class="text-center text-danger">No leaderboard data available.</td></tr>';
@@ -20,9 +20,9 @@ function fetchLeaderboard() {
       document.getElementById('leaderboard').innerHTML =
         '<tr><td colspan="7" class="text-center text-danger">Error fetching leaderboard data.</td></tr>';
     });
-}
+};
 
-function displayLeaderboard(players, gameMode) {
+window.displayLeaderboard = function (players, gameMode) {
   const leaderboardTable = document.getElementById('leaderboard');
   leaderboardTable.innerHTML = '';
   players.forEach(player => {
@@ -38,27 +38,27 @@ function displayLeaderboard(players, gameMode) {
     }
 
     playerRow.innerHTML = `
-            <td>${player.human_index}</td>
-            <td>${player.username}</td>
-            <td>${player.xp}</td>
-            <td>${player.played}</td>
-            <td>${player.victories}</td>
-            <td>${player.deaths}</td>
-            <td>${killsColumn}</td>
-          `;
+      <td>${player.human_index}</td>
+      <td>${player.username}</td>
+      <td>${player.xp}</td>
+      <td>${player.played}</td>
+      <td>${player.victories}</td>
+      <td>${player.deaths}</td>
+      <td>${killsColumn}</td>
+    `;
     leaderboardTable.appendChild(playerRow);
   });
-}
+};
 
-function filterLeaderboard() {
+window.filterLeaderboard = function () {
   const searchTerm = document
     .getElementById('usernameSearch')
     .value.toLowerCase();
-  const filteredData = leaderboardData.filter(player =>
+  const filteredData = window.leaderboardData.filter(player =>
     player.username.toLowerCase().includes(searchTerm)
   );
   const selectedGame = document.getElementById('gameSelect').value;
-  displayLeaderboard(filteredData, selectedGame);
-}
+  window.displayLeaderboard(filteredData, selectedGame);
+};
 
-window.onload = fetchLeaderboard;
+window.onload = window.fetchLeaderboard;

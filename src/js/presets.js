@@ -33,6 +33,9 @@ export const presets = {
     { label: 'Wins', field: 'victories' },
     { label: 'Kills', field: 'kills' },
     { label: 'Deaths', field: 'deaths' },
+    { label: 'Mystery Chests Destroyed', field: 'mystery_chests_destroyed' },
+    { label: 'Ores Mined', field: 'ores_mined' },
+    { label: 'Spells Used', field: 'spells_used' },
   ],
   dr: [
     { label: 'XP', field: 'xp' },
