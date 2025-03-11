@@ -57,7 +57,14 @@ function fetchUserInfo() {
 
 function fetchGameMeta() {
   fetch(gameMetaUrl)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch game metadata. Status: ${response.status}`
+        );
+      }
+      return response.json();
+    })
     .then(data => {
       if (data) {
         gameMetaData = data;
@@ -65,8 +72,8 @@ function fetchGameMeta() {
         displayPlayerEfficiency();
       }
     })
-    .catch(() => {
-      console.error('Error fetching game metadata.');
+    .catch(error => {
+      console.error('Error fetching game metadata:', error);
     });
 }
 
@@ -107,6 +114,7 @@ function displayPlayerEfficiency() {
   const statsContainer = document.getElementById('stats');
 
   if (gameMode === 'bed') {
+    console.log('bed');
     const kills = playerData.kills ?? 0;
     const finalKills = playerData.final_kills ?? 0;
     const bedsDestroyed = playerData.beds_destroyed ?? 0;
@@ -122,6 +130,7 @@ function displayPlayerEfficiency() {
         parseFloat(finalKillProbability) +
         parseFloat(bedDestructionProbability));
   } else if (gameMode === 'wars') {
+    console.log('wars');
     const kills = playerData.kills ?? 0;
     const finalKills = playerData.final_kills ?? 0;
     const treasuresDestroyed = playerData.treasure_destroyed ?? 0;
@@ -137,6 +146,7 @@ function displayPlayerEfficiency() {
         parseFloat(finalKillProbability) +
         parseFloat(treasureProbability));
   } else if (gameMode === 'sky') {
+    console.log('sky');
     const kills = playerData.kills ?? 0;
     const mysteryChestsDestroyed = playerData.mystery_chests_destroyed ?? 0;
     const oresMined = playerData.ores_mined ?? 0;
@@ -151,6 +161,71 @@ function displayPlayerEfficiency() {
       (parseFloat(killProbability) +
         parseFloat(mysteryChestProbability) +
         parseFloat(oresMinedProbability));
+  } else if (gameMode === 'murder') {
+    console.log('murder');
+    const murders = playerData.murders ?? 0;
+    const murderer_eliminations = playerData.murderer_eliminations ?? 0;
+    const victories = playerData.victories ?? 0;
+    const played = playerData.played ?? 0;
+
+    const murderProbability = 0.4 * (murders / played);
+    const murdererEliminationProbability =
+      1.5 * (murderer_eliminations / played);
+    const victoriesProbability = 0.4 * (victories / played);
+
+    efficiency =
+      100 *
+      (parseFloat(murderProbability) +
+        parseFloat(murdererEliminationProbability) +
+        parseFloat(victoriesProbability));
+  } else if (gameMode === 'dr') {
+    console.log('dr');
+    const kills = playerData.kills ?? 0;
+    const activatedTraps = playerData.activated ?? 0;
+    const victories = playerData.victories ?? 0;
+    const played = playerData.played ?? 0;
+
+    const killProbability = 0.4 * (kills / played);
+    const activatedTrapsProbability = 0.5 * (activatedTraps / played);
+    const victoriesProbability = 0.3 * (victories / played);
+
+    efficiency =
+      100 *
+      (parseFloat(killProbability) +
+        parseFloat(activatedTrapsProbability) +
+        parseFloat(victoriesProbability));
+  } else if (gameMode === 'party') {
+    console.log('party');
+    const powerupsCollected = playerData.powerups_collected ?? 0;
+    const roundsSurvived = playerData.powerups_collected ?? 0;
+    const victories = playerData.victories ?? 0;
+    const played = playerData.played ?? 0;
+
+    const powerupsCollectedProbability = 0.1 * (powerupsCollected / played);
+    const roundsSurvivedProbability = 0.05 * (roundsSurvived / played);
+    const victoriesProbability = 0.4 * (victories / played);
+
+    efficiency =
+      100 *
+      (parseFloat(powerupsCollectedProbability) +
+        parseFloat(roundsSurvivedProbability) +
+        parseFloat(victoriesProbability));
+  } else if (gameMode === 'ground') {
+    console.log('party');
+    const blocksDestroyed = playerData.blocks_destroyed ?? 0;
+    const projectilesFired = playerData.projectiles_fired ?? 0;
+    const victories = playerData.victories ?? 0;
+    const played = playerData.played ?? 0;
+
+    const blocksDestroyedProbability = 0.005 * (blocksDestroyed / played);
+    const projectilesFiredProbability = 0.008 * (projectilesFired / played);
+    const victoriesProbability = 0.4 * (victories / played);
+
+    efficiency =
+      100 *
+      (parseFloat(blocksDestroyedProbability) +
+        parseFloat(projectilesFiredProbability) +
+        parseFloat(victoriesProbability));
   } else {
     efficiency = 0;
   }
@@ -177,8 +252,6 @@ function displayPlayerEfficiency() {
   } else if (efficiency >= 85) {
     efficiencyElement.style.color = 'green';
   }
-
-  console.log(efficiency, kills, mysteryChestsDestroyed, oresMined);
 
   statsContainer.insertBefore(efficiencyCard, statsContainer.children[1]);
 }
@@ -208,10 +281,12 @@ function displayStats(data) {
   const played = gameData.played ?? 0;
   const kills = gameData.kills ?? 0;
   const deaths = gameData.deaths ?? 0;
+  const murders = gameData.murders ?? 0;
 
   const losses = played - wins;
   const lossesWlr = losses > 0 ? (100 * (wins / played)).toFixed(3) : 'N/A';
   const kdr = deaths > 0 ? (kills / deaths).toFixed(3) : 'N/A';
+  const kdrMurder = murders > 0 ? (murders / deaths).toFixed(3) : 'N/A';
 
   presets[gameMode].forEach(preset => {
     let fieldValue = gameData[preset.field] ?? 'N/A';
@@ -257,9 +332,10 @@ function displayStats(data) {
   `;
     statsContainer.appendChild(statElementWlr);
 
-    const statElementKdr = document.createElement('div');
-    statElementKdr.classList.add('col-md-4', 'my-2');
-    statElementKdr.innerHTML = ` 
+    if (gameMode !== 'murder') {
+      const statElementKdr = document.createElement('div');
+      statElementKdr.classList.add('col-md-4', 'my-2');
+      statElementKdr.innerHTML = ` 
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">KDR</h5>
@@ -267,7 +343,20 @@ function displayStats(data) {
       </div>
     </div>
   `;
-    statsContainer.appendChild(statElementKdr);
+      statsContainer.appendChild(statElementKdr);
+    } else {
+      const statElementKdrMurder = document.createElement('div');
+      statElementKdrMurder.classList.add('col-md-4', 'my-2');
+      statElementKdrMurder.innerHTML = ` 
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">KDR</h5>
+        <p class="card-text">${kdrMurder}</p>
+      </div>
+    </div>
+  `;
+      statsContainer.appendChild(statElementKdrMurder);
+    }
   }
 
   playerData = gameData;

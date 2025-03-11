@@ -59,10 +59,9 @@ export const presets = {
     { label: 'XP', field: 'xp' },
     { label: 'Games Played', field: 'played' },
     { label: 'Wins', field: 'victories' },
-    { label: 'Kills', field: 'kills' },
+    { label: 'Murders', field: 'murders' },
     { label: 'Deaths', field: 'deaths' },
     { label: 'Coins', field: 'coins' },
-    { label: 'Murders', field: 'murders' },
     { label: 'Murderer Eliminations', field: 'murderer_eliminations' },
   ],
   party: [
